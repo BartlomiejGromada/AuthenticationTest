@@ -1,10 +1,11 @@
 import {
   createUserWithEmailAndPassword,
+  onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
 import { addDoc, collection } from "firebase/firestore";
-import { createContext, useReducer, useState } from "react";
+import { createContext, useEffect, useReducer, useState } from "react";
 import { auth, db } from "../firebase";
 
 const initialFetchingState = {
@@ -45,6 +46,20 @@ export const UserContext = createContext({
 const UserContextProvider = (props) => {
   const [user, setUser] = useState(null);
   const [fetchingState, dispatch] = useReducer(reducer, initialFetchingState);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        setUser(null);
+      }
+      setIsLoadingUser(false);
+
+      return () => unsubscribe;
+    });
+  }, []);
 
   const register = async (email, password) => {
     dispatch({ type: "PENDING" });
@@ -112,7 +127,7 @@ const UserContextProvider = (props) => {
         fetchingState: fetchingState,
       }}
     >
-      {props.children}
+      {!isLoadingUser && props.children}
     </UserContext.Provider>
   );
 };

@@ -2,31 +2,29 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { Route, Routes } from "react-router";
 import { BrowserRouter } from "react-router-dom";
-import ProtectedRoute from "./components/ProtectedRoute";
+import PrivateRoute from "./components/PrivateRoute";
 import UserContextProvider from "./context/UserContext";
+import "./input.css";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import "./input.css";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <UserContextProvider>
+    <UserContextProvider>
+      <BrowserRouter>
         <Routes>
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            }
-          />
+          {/* PrivateRoutes */}
+          <Route path="/" element={<PrivateRoute />}>
+            <Route path="/" element={<Home />} />
+          </Route>
+          
+          {/* PublicRoutes */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>
-      </UserContextProvider>
-    </BrowserRouter>
+      </BrowserRouter>
+    </UserContextProvider>
   </React.StrictMode>
 );
